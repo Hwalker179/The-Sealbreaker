@@ -1,7 +1,9 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\Debug",
+    "\\x64"
   ],
-  "SelectedNode": "\\TheSpellbreaker.cpp",
+  "SelectedNode": "\\TheSpellbreaker.sln",
   "PreviewInSolutionExplorer": false
 }

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
+#include "Player.h"
 
 int main(int argc, char* argv[]) {
     if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -26,8 +27,9 @@ int main(int argc, char* argv[]) {
     // Room boundary: x, y, width, height
     const SDL_FRect room{ 40.0f, 40.0f, 560.0f, 400.0f };
 
-    // Player: a 32 × 32 square in the centre
-    SDL_FRect player{ 304.0f, 224.0f, 32.0f, 32.0f };
+    Player player;
+
+    Uint64 previousTime = SDL_GetTicks();
 
     bool running = true;
 
@@ -54,6 +56,19 @@ int main(int argc, char* argv[]) {
             break;
         }
 
+        // Calculate elapsed time in seconds
+        const Uint64 currentTime = SDL_GetTicks();
+        float deltaTime = static_cast<float>(currentTime - previousTime) / 1000.0f;
+        previousTime = currentTime;
+
+        // Limit movement jumps after a long pause or debugger stop
+        if (deltaTime > 0.05f)
+        {
+            deltaTime = 0.05f;
+        }
+
+        player.update(deltaTime, room);
+
         // Clear the screen to black
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
@@ -64,8 +79,7 @@ int main(int argc, char* argv[]) {
         // Draw the thin room outline
         SDL_RenderRect(renderer, &room);
 
-        // Draw the solid player square
-        SDL_RenderFillRect(renderer, &player);
+        player.render(renderer);
 
         // Display the completed frame
         SDL_RenderPresent(renderer);
