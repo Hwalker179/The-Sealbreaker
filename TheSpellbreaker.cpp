@@ -3,6 +3,7 @@
 #include <SDL3/SDL_main.h>
 #include "Player.h"
 #include <string>
+#include "LightPuzzle.h"
 
 int main(int argc, char* argv[]) {
     if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -37,6 +38,9 @@ int main(int argc, char* argv[]) {
 
     Player player;
 
+    LightPuzzle firstPuzzle;
+    firstPuzzle.loadClue("assets/room1_note.txt");
+
     Uint64 previousTime = SDL_GetTicks();
 
     bool running = true;
@@ -52,10 +56,22 @@ int main(int argc, char* argv[]) {
             {
                 running = false;
             }
+
             else if (event.type == SDL_EVENT_KEY_DOWN
                 && event.key.key == SDLK_ESCAPE)
             {
                 running = false;
+            }
+
+            else if (event.type == SDL_EVENT_KEY_DOWN
+                && event.key.scancode == SDL_SCANCODE_E
+                && !event.key.repeat
+                && currentRoom == 0)
+            {
+                firstPuzzle.interact(player.getBounds(), window);
+
+                // Avoid including time spent reading the note in movement.
+                previousTime = SDL_GetTicks();
             }
         }
 
@@ -89,6 +105,7 @@ int main(int argc, char* argv[]) {
         {
             // Walk right into next
             if (currentRoom < roomCount - 1 &&
+                (currentRoom != 0 || firstPuzzle.isSolved()) &&
                 position.x + position.w >= room.x + room.w - 1.0f)
             {
                 ++currentRoom;
@@ -151,6 +168,20 @@ int main(int argc, char* argv[]) {
         else
         {
             SDL_RenderLine(renderer, right, top, right, bottom);
+        }
+
+        if (currentRoom == 0)
+        {
+            firstPuzzle.render(renderer);
+
+            // A white barrier seals the first room's right opening
+            if (!firstPuzzle.isSolved())
+            {
+                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+                SDL_RenderLine(
+                    renderer, right, openingTop, right, openingBottom);
+            }
         }
 
         player.render(renderer);
