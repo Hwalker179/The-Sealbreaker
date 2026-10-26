@@ -2,6 +2,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include "Player.h"
+#include <string>
 
 int main(int argc, char* argv[]) {
     if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -9,7 +10,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    SDL_Window* window = SDL_CreateWindow("The Sealbreaker", 640, 480, 0);
+    SDL_Window* window = SDL_CreateWindow("The Sealbreaker - Room 1/3", 640, 480, 0);
     if (!window) {
         std::cerr << "SDL_CreateWindow failed: " << SDL_GetError() << std::endl;
         SDL_Quit();
@@ -26,6 +27,13 @@ int main(int argc, char* argv[]) {
 
     // Room boundary: x, y, width, height
     const SDL_FRect room{ 40.0f, 40.0f, 560.0f, 400.0f };
+
+    constexpr int roomCount = 3;
+    int currentRoom = 0;
+
+    // Openings in the middle of the side walls
+    constexpr float openingTop = 200.0f;
+    constexpr float openingBottom = 280.0f;
 
     Player player;
 
@@ -69,6 +77,44 @@ int main(int argc, char* argv[]) {
 
         player.update(deltaTime, room);
 
+        const SDL_FRect position = player.getBounds();
+        const int previousRoom = currentRoom;
+
+        // The whole player must fit inside the opening
+        const bool insideOpening =
+            position.y >= openingTop &&
+            position.y + position.h <= openingBottom;
+
+        if (insideOpening)
+        {
+            // Walk right into next
+            if (currentRoom < roomCount - 1 &&
+                position.x + position.w >= room.x + room.w - 1.0f)
+            {
+                ++currentRoom;
+                player.setPosition(room.x + 2.0f, position.y);
+            }
+            // Walk left into previous
+            else if (currentRoom > 0 &&
+                position.x <= room.x + 1.0f)
+            {
+                --currentRoom;
+                player.setPosition(
+                    room.x + room.w - position.w - 2.0f,
+                    position.y);
+            }
+        }
+
+        // Changes room title
+        if (currentRoom != previousRoom)
+        {
+            const std::string title =
+                "The Sealbreaker - Room " +
+                std::to_string(currentRoom + 1) + "/3";
+
+            SDL_SetWindowTitle(window, title.c_str());
+        }
+
         // Clear the screen to black
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
@@ -76,8 +122,36 @@ int main(int argc, char* argv[]) {
         // Use white for the walls and player
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
-        // Draw the thin room outline
-        SDL_RenderRect(renderer, &room);
+        const float left = room.x;
+        const float right = room.x + room.w;
+        const float top = room.y;
+        const float bottom = room.y + room.h;
+
+        // Top and bottom walls
+        SDL_RenderLine(renderer, left, top, right, top);
+        SDL_RenderLine(renderer, left, bottom, right, bottom);
+
+        // Left wall: opening only if there is a previous room
+        if (currentRoom > 0)
+        {
+            SDL_RenderLine(renderer, left, top, left, openingTop);
+            SDL_RenderLine(renderer, left, openingBottom, left, bottom);
+        }
+        else
+        {
+            SDL_RenderLine(renderer, left, top, left, bottom);
+        }
+
+        // Right wall: opening only if there is a next room
+        if (currentRoom < roomCount - 1)
+        {
+            SDL_RenderLine(renderer, right, top, right, openingTop);
+            SDL_RenderLine(renderer, right, openingBottom, right, bottom);
+        }
+        else
+        {
+            SDL_RenderLine(renderer, right, top, right, bottom);
+        }
 
         player.render(renderer);
 
