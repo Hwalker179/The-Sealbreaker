@@ -37,6 +37,7 @@ int main(int argc, char* argv[]) {
     constexpr float openingBottom = 280.0f;
 
     Player player;
+    player.loadSprite(renderer, "assets/player.png");
 
     LightPuzzle firstPuzzle;
     firstPuzzle.loadClue("assets/room1_note.txt");
@@ -192,6 +193,11 @@ int main(int argc, char* argv[]) {
         // Simple delay to avoid running the loop unnecessarily fas
         SDL_Delay(16);
     }
+
+    player.unloadSprite();
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
 
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);

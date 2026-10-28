@@ -1,6 +1,9 @@
 #include "Player.h"
 #include <algorithm>
 #include <cmath>
+#include <SDL3_image/SDL_image.h>
+#include <iostream>
+
 
 void Player::update(float deltaTime, const SDL_FRect& room)
 {
@@ -33,8 +36,39 @@ void Player::update(float deltaTime, const SDL_FRect& room)
         room.y + room.h - bounds.h - 1.0f);
 }
 
+    bool Player::loadSprite(
+        SDL_Renderer * renderer, const std::string & path)
+    {
+        sprite.reset(IMG_LoadTexture(renderer, path.c_str()));
+
+        if (!sprite)
+        {
+            std::cerr << "Could not load player sprite: "
+                << SDL_GetError() << '\n';
+            return false;
+        }
+
+        // Keep pixel-art edges sharp when scaled.
+        SDL_SetTextureScaleMode(sprite.get(), SDL_SCALEMODE_NEAREST);
+        return true;
+    }
+
+    void Player::unloadSprite()
+    {
+        sprite.reset();
+    }
+
+
 void Player::render(SDL_Renderer* renderer) const
 {
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    SDL_RenderFillRect(renderer, &bounds);
+    if (sprite)
+    {
+        SDL_RenderTexture(renderer, sprite.get(), nullptr, &bounds);
+    }
+    else
+    {
+        // Fall back to the white square if loading failed.
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderFillRect(renderer, &bounds);
+    }
 }
