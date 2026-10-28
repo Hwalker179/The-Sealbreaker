@@ -157,11 +157,13 @@ copy /Y "$(ProjectDir)external\SDL3_image\lib\x64\*.dll" "$(TargetDir)"</Command
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BoxPuzzle.cpp" />
     <ClCompile Include="LightPuzzle.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="TheSpellbreaker.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BoxPuzzle.h" />
     <ClInclude Include="LightPuzzle.h" />
     <ClInclude Include="Player.h" />
   </ItemGroup>
