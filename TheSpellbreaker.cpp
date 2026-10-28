@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
     // Room boundary: x, y, width, height
     const SDL_FRect room{ 40.0f, 40.0f, 560.0f, 400.0f };
 
-    constexpr int roomCount = 3;
+    constexpr int roomCount = 4;
     int currentRoom = 0;
 
     // Openings in the middle of the side walls
@@ -128,7 +128,7 @@ int main(int argc, char* argv[]) {
         {
             const std::string title =
                 "The Sealbreaker - Room " +
-                std::to_string(currentRoom + 1) + "/3";
+                std::to_string(currentRoom + 1) + "/4";
 
             SDL_SetWindowTitle(window, title.c_str());
         }
@@ -195,10 +195,6 @@ int main(int argc, char* argv[]) {
     }
 
     player.unloadSprite();
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();

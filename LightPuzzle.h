@@ -17,10 +17,10 @@ private:
     SDL_FRect lightBounds(int index) const;
     bool isNear(const SDL_FRect& player, const SDL_FRect& object) const;
 
-    std::array<bool, 4> lights{ false, false, false, false };
+    std::array<bool, 6> lights{ false, false, false, false, false, false };
 
     // Puzzle Answer
-    const std::array<bool, 4> solution{ true, false, true, false };
+    const std::array<bool, 6> solution{ true, false, true, true, false, true };
 
     SDL_FRect note{ 100.0f, 320.0f, 24.0f, 32.0f };
     std::string clue = "The note could not be loaded.";

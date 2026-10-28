@@ -21,7 +21,7 @@ bool LightPuzzle::loadClue(const std::string& path)
 SDL_FRect LightPuzzle::lightBounds(int index) const
 {
     return {
-        150.0f + static_cast<float>(index) * 100.0f,
+        54.0f + static_cast<float>(index) * 100.0f,
         120.0f, 32.0f, 32.0f
     };
 }
@@ -59,7 +59,7 @@ void LightPuzzle::interact(
         return;
     }
 
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < static_cast<int>(lights.size()); ++i)
     {
         if (isNear(player, lightBounds(i)))
         {
@@ -74,7 +74,7 @@ void LightPuzzle::render(SDL_Renderer* renderer) const
 {
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < static_cast<int>(lights.size()); ++i)
     {
         const SDL_FRect light = lightBounds(i);
         const float cx = light.x + light.w / 2.0f;
