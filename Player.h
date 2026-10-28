@@ -32,4 +32,6 @@ private:
 
     SDL_FRect bounds{ 304.0f, 224.0f, 32.0f, 32.0f };
     float speed = 180.0f;
+
+    bool facingLeft = false;
 };

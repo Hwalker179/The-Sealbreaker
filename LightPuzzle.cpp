@@ -1,5 +1,5 @@
 #include "LightPuzzle.h"
-
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 
@@ -77,14 +77,40 @@ void LightPuzzle::render(SDL_Renderer* renderer) const
     for (int i = 0; i < 4; ++i)
     {
         const SDL_FRect light = lightBounds(i);
+        const float cx = light.x + light.w / 2.0f;
+        const float cy = light.y + light.h / 2.0f;
+
+        // Crystal outline
+        const SDL_FPoint crystal[] = {
+            {cx,         cy - 16.0f},
+            {cx + 16.0f, cy},
+            {cx,         cy + 16.0f},
+            {cx - 16.0f, cy},
+            {cx,         cy - 16.0f}
+        };
+
+        SDL_RenderLines(renderer, crystal, 5);
+
+        // Small stand beneath the crystal
+        const SDL_FRect stand{
+            cx - 11.0f, cy + 20.0f, 22.0f, 4.0f
+        };
+
+        SDL_RenderFillRect(renderer, &stand);
 
         if (lights[i])
         {
-            SDL_RenderFillRect(renderer, &light);
-        }
-        else
-        {
-            SDL_RenderRect(renderer, &light);
+            // Fill a smaller diamond
+            for (int row = -11; row <= 11; ++row)
+            {
+                const float halfWidth =
+                    static_cast<float>(11 - std::abs(row));
+
+                SDL_RenderLine(
+                    renderer,
+                    cx - halfWidth, cy + static_cast<float>(row),
+                    cx + halfWidth, cy + static_cast<float>(row));
+            }
         }
     }
 

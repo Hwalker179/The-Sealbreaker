@@ -17,6 +17,16 @@ void Player::update(float deltaTime, const SDL_FRect& room)
     if (keys[SDL_SCANCODE_A]) dx -= 1.0f;
     if (keys[SDL_SCANCODE_D]) dx += 1.0f;
 
+    // Remember the last horizontal direction
+    if (dx < 0.0f)
+    {
+        facingLeft = true;
+    }
+    else if (dx > 0.0f)
+    {
+        facingLeft = false;
+    }
+
     // Keep diagonal movement at the same speed as straight movement
     const float length = std::sqrt(dx * dx + dy * dy);
 
@@ -63,7 +73,12 @@ void Player::render(SDL_Renderer* renderer) const
 {
     if (sprite)
     {
-        SDL_RenderTexture(renderer, sprite.get(), nullptr, &bounds);
+        const SDL_FlipMode flip =
+            facingLeft ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+
+        SDL_RenderTextureRotated(
+            renderer, sprite.get(), nullptr, &bounds,
+            0.0, nullptr, flip);
     }
     else
     {
