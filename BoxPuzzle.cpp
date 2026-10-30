@@ -138,6 +138,11 @@ bool BoxPuzzle::collidesWithBox(const SDL_FRect& player) const
 
 void BoxPuzzle::tryPush(const SDL_FRect& player, int dx, int dy)
 {
+    if (solved)
+    {
+        return;
+    }
+
     // Only allow one horizontal or vertical step
     if (!((dx == -1 || dx == 1) && dy == 0) &&
         !((dy == -1 || dy == 1) && dx == 0))
@@ -191,12 +196,31 @@ void BoxPuzzle::tryPush(const SDL_FRect& player, int dx, int dy)
 
         box.column = nextColumn;
         box.row = nextRow;
+
+        // Each box must occupy its own matching target
+        solved = true;
+
+        for (int i = 0; i < static_cast<int>(boxes.size()); ++i)
+        {
+            if (boxes[i].column != targets[i].column ||
+                boxes[i].row != targets[i].row)
+            {
+                solved = false;
+                break;
+            }
+        }
+
         return;
     }
 }
 
 void BoxPuzzle::reset()
 {
+    if (solved)
+    {
+        return;
+    }
+
     boxes = { {
         {3, 0},
         {7, 0},

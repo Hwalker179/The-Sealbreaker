@@ -10,6 +10,7 @@ public:
     bool collidesWithBox(const SDL_FRect& player) const;
     void tryPush(const SDL_FRect& player, int dx, int dy);
     void reset();
+    bool isSolved() const { return solved; }
 private:
     struct Cell
     {
@@ -37,4 +38,6 @@ private:
         SDL_Renderer* renderer,
         const SDL_FRect& tile,
         int symbol) const;
+
+    bool solved = false;
 };

@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    SDL_Window* window = SDL_CreateWindow("The Sealbreaker - Room 1/3", 640, 480, 0);
+    SDL_Window* window = SDL_CreateWindow("The Sealbreaker - Room 1/4", 640, 480, 0);
     if (!window) {
         std::cerr << "SDL_CreateWindow failed: " << SDL_GetError() << std::endl;
         SDL_Quit();
@@ -81,7 +81,8 @@ int main(int argc, char* argv[]) {
             else if (event.type == SDL_EVENT_KEY_DOWN &&
                 event.key.scancode == SDL_SCANCODE_R &&
                 !event.key.repeat &&
-                currentRoom == 1)
+                currentRoom == 1 &&
+                !secondPuzzle.isSolved())
             {
                 secondPuzzle.reset();
 
@@ -163,6 +164,7 @@ int main(int argc, char* argv[]) {
             // Walk right into next
             if (currentRoom < roomCount - 1 &&
                 (currentRoom != 0 || firstPuzzle.isSolved()) &&
+                (currentRoom != 1 || secondPuzzle.isSolved()) &&
                 position.x + position.w >= room.x + room.w - 1.0f)
             {
                 ++currentRoom;
@@ -244,6 +246,14 @@ int main(int argc, char* argv[]) {
         if (currentRoom == 1)
         {
             secondPuzzle.render(renderer);
+
+            if (!secondPuzzle.isSolved())
+            {
+                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+                SDL_RenderLine(
+                    renderer, right, openingTop, right, openingBottom);
+            }
         }
 
         player.render(renderer);
