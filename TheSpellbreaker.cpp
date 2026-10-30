@@ -95,7 +95,31 @@ int main(int argc, char* argv[]) {
             deltaTime = 0.05f;
         }
 
+        const SDL_FRect oldPosition = player.getBounds();
+
         player.update(deltaTime, room);
+
+        if (currentRoom == 1)
+        {
+            const SDL_FRect newPosition = player.getBounds();
+
+            // Test horizontal movement on its own
+            player.setPosition(newPosition.x, oldPosition.y);
+
+            if (secondPuzzle.collidesWithBox(player.getBounds()))
+            {
+                player.setPosition(oldPosition.x, oldPosition.y);
+            }
+
+            // Keep the accepted horizontal position, then test vertical movement
+            const float acceptedX = player.getBounds().x;
+            player.setPosition(acceptedX, newPosition.y);
+
+            if (secondPuzzle.collidesWithBox(player.getBounds()))
+            {
+                player.setPosition(acceptedX, oldPosition.y);
+            }
+        }
 
         const SDL_FRect position = player.getBounds();
         const int previousRoom = currentRoom;

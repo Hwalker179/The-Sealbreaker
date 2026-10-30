@@ -110,7 +110,28 @@ void BoxPuzzle::render(SDL_Renderer* renderer) const
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         drawSymbol(renderer, tile, i);
     }
-
     // Restore white for any drawing that follows
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+}
+
+bool BoxPuzzle::collidesWithBox(const SDL_FRect& player) const
+{
+    for (const Cell& box : boxes)
+    {
+        const SDL_FRect tile = cellBounds(box.column, box.row);
+
+        // Match the filled box drawn inside its floor tile
+        const SDL_FRect bounds{
+            tile.x + 2.0f, tile.y + 2.0f,
+            tile.w - 4.0f, tile.h - 4.0f
+        };
+
+        // Checks if two rectangles overlap
+        if (SDL_HasRectIntersectionFloat(&player, &bounds))
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
