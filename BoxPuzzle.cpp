@@ -135,3 +135,72 @@ bool BoxPuzzle::collidesWithBox(const SDL_FRect& player) const
 
     return false;
 }
+
+void BoxPuzzle::tryPush(const SDL_FRect& player, int dx, int dy)
+{
+    // Only allow one horizontal or vertical step
+    if (!((dx == -1 || dx == 1) && dy == 0) &&
+        !((dy == -1 || dy == 1) && dx == 0))
+    {
+        return;
+    }
+
+    for (Cell& box : boxes)
+    {
+        const SDL_FRect tile = cellBounds(box.column, box.row);
+
+        const SDL_FRect bounds{
+            tile.x + 2.0f, tile.y + 2.0f,
+            tile.w - 4.0f, tile.h - 4.0f
+        };
+
+        if (!SDL_HasRectIntersectionFloat(&player, &bounds))
+        {
+            continue;
+        }
+
+        const int nextColumn = box.column + dx;
+        const int nextRow = box.row + dy;
+
+        // Stay inside the grid
+        if (nextColumn < 0 || nextColumn >= 11 ||
+            nextRow < 0 || nextRow >= 9)
+        {
+            return;
+        }
+
+        // Boxes can only move along the hashtag tracks
+        const bool isTrack =
+            nextRow == 2 || nextRow == 6 ||
+            nextColumn == 3 || nextColumn == 7;
+
+        if (!isTrack)
+        {
+            return;
+        }
+
+        // Do not push into another box
+        for (const Cell& other : boxes)
+        {
+            if (other.column == nextColumn &&
+                other.row == nextRow)
+            {
+                return;
+            }
+        }
+
+        box.column = nextColumn;
+        box.row = nextRow;
+        return;
+    }
+}
+
+void BoxPuzzle::reset()
+{
+    boxes = { {
+        {3, 0},
+        {7, 0},
+        {0, 2},
+        {0, 6}
+    } };
+}

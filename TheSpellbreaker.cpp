@@ -74,8 +74,19 @@ int main(int argc, char* argv[]) {
             {
                 firstPuzzle.interact(player.getBounds(), window);
 
-                // Avoid including time spent reading the note in movement.
+                // Avoid including time spent reading the note in movement
                 previousTime = SDL_GetTicks();
+            }
+
+            else if (event.type == SDL_EVENT_KEY_DOWN &&
+                event.key.scancode == SDL_SCANCODE_R &&
+                !event.key.repeat &&
+                currentRoom == 1)
+            {
+                secondPuzzle.reset();
+
+                // Return to a clear position outside the tracks
+                player.setPosition(80.0f, 224.0f);
             }
         }
 
@@ -103,17 +114,35 @@ int main(int argc, char* argv[]) {
         {
             const SDL_FRect newPosition = player.getBounds();
 
-            // Test horizontal movement on its own
+            // Horizontal movement
             player.setPosition(newPosition.x, oldPosition.y);
+
+            const int pushX =
+                (newPosition.x > oldPosition.x) ? 1 :
+                (newPosition.x < oldPosition.x) ? -1 : 0;
+
+            if (pushX != 0)
+            {
+                secondPuzzle.tryPush(player.getBounds(), pushX, 0);
+            }
 
             if (secondPuzzle.collidesWithBox(player.getBounds()))
             {
                 player.setPosition(oldPosition.x, oldPosition.y);
             }
 
-            // Keep the accepted horizontal position, then test vertical movement
+            // Vertical movement
             const float acceptedX = player.getBounds().x;
             player.setPosition(acceptedX, newPosition.y);
+
+            const int pushY =
+                (newPosition.y > oldPosition.y) ? 1 :
+                (newPosition.y < oldPosition.y) ? -1 : 0;
+
+            if (pushY != 0)
+            {
+                secondPuzzle.tryPush(player.getBounds(), 0, pushY);
+            }
 
             if (secondPuzzle.collidesWithBox(player.getBounds()))
             {

@@ -8,7 +8,8 @@ class BoxPuzzle
 public:
     void render(SDL_Renderer* renderer) const;
     bool collidesWithBox(const SDL_FRect& player) const;
-
+    void tryPush(const SDL_FRect& player, int dx, int dy);
+    void reset();
 private:
     struct Cell
     {
