@@ -1,0 +1,2 @@
+Push the boxes into the correct position.
+"R" key resets the puzzle if you get stuck.

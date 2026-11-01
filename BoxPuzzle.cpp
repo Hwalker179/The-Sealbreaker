@@ -1,4 +1,6 @@
 #include "BoxPuzzle.h"
+#include <fstream>
+#include <iostream>
 
 SDL_FRect BoxPuzzle::cellBounds(int column, int row) const
 {
@@ -12,6 +14,48 @@ SDL_FRect BoxPuzzle::cellBounds(int column, int row) const
         tileSize,
         tileSize
     };
+}
+
+bool BoxPuzzle::loadClue(const std::string& path)
+{
+    std::ifstream file(path);
+    std::string text;
+
+    if (!std::getline(file, text, '\0') || text.empty())
+    {
+        std::cerr << "Could not read clue: " << path << '\n';
+        return false;
+    }
+
+    clue = text;
+    return true;
+}
+
+bool BoxPuzzle::isNear(
+    const SDL_FRect& player, const SDL_FRect& object) const
+{
+    const float dx =
+        (player.x + player.w / 2.0f) - (object.x + object.w / 2.0f);
+
+    const float dy =
+        (player.y + player.h / 2.0f) - (object.y + object.h / 2.0f);
+
+    return dx * dx + dy * dy <= 48.0f * 48.0f;
+}
+
+void BoxPuzzle::interact(
+    const SDL_FRect& player, SDL_Window* window)
+{
+    if (isNear(player, note))
+    {
+        if (!SDL_ShowSimpleMessageBox(
+            SDL_MESSAGEBOX_INFORMATION,
+            "Dungeon note", clue.c_str(), window))
+        {
+            std::cerr << "Could not display note: "
+                << SDL_GetError() << '\n';
+        }
+    }
 }
 
 void BoxPuzzle::drawSymbol(
@@ -112,6 +156,19 @@ void BoxPuzzle::render(SDL_Renderer* renderer) const
     }
     // Restore white for any drawing that follows
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+    SDL_RenderRect(renderer, &note);
+
+    SDL_RenderLine(
+        renderer, note.x + 5.0f, note.y + 10.0f,
+        note.x + 19.0f, note.y + 10.0f);
+
+    SDL_RenderLine(
+        renderer, note.x + 5.0f, note.y + 18.0f,
+        note.x + 19.0f, note.y + 18.0f);
+
 }
 
 bool BoxPuzzle::collidesWithBox(const SDL_FRect& player) const

@@ -45,8 +45,10 @@ int main(int argc, char* argv[]) {
     firstPuzzle.loadClue("assets/room1_note.txt");
 
     BoxPuzzle secondPuzzle;
+    secondPuzzle.loadClue("assets/room2_note.txt");
 
     RunePuzzle thirdPuzzle;
+    thirdPuzzle.loadClue("assets/room3_note.txt");
 
     Uint64 previousTime = SDL_GetTicks();
 
@@ -64,23 +66,26 @@ int main(int argc, char* argv[]) {
                 running = false;
             }
 
-            else if (event.type == SDL_EVENT_KEY_DOWN
-                && event.key.key == SDLK_ESCAPE)
-            {
-                running = false;
+            else if (event.type == SDL_EVENT_KEY_DOWN &&
+                     event.key.scancode == SDL_SCANCODE_E &&
+                     !event.key.repeat)
+            {   
+                 if (currentRoom == 0)
+                 {
+                    firstPuzzle.interact(player.getBounds(), window);
+                 }
+                 else if (currentRoom == 1)
+                 {
+                    secondPuzzle.interact(player.getBounds(), window);
+                 }
+                 else if (currentRoom == 2)
+                 {
+                    thirdPuzzle.interact(player.getBounds(), window);
+                 }
+
+                 previousTime = SDL_GetTicks();
             }
-
-            else if (event.type == SDL_EVENT_KEY_DOWN
-                && event.key.scancode == SDL_SCANCODE_E
-                && !event.key.repeat
-                && currentRoom == 0)
-            {
-                firstPuzzle.interact(player.getBounds(), window);
-
-                // Avoid including time spent reading the note in movement
-                previousTime = SDL_GetTicks();
-            }
-
+            
             else if (event.type == SDL_EVENT_KEY_DOWN &&
                 event.key.scancode == SDL_SCANCODE_R &&
                 !event.key.repeat &&

@@ -1,4 +1,48 @@
 #include "RunePuzzle.h"
+#include <fstream>
+#include <iostream>
+
+bool RunePuzzle::loadClue(const std::string& path)
+{
+    std::ifstream file(path);
+    std::string text;
+
+    if (!std::getline(file, text, '\0') || text.empty())
+    {
+        std::cerr << "Could not read clue: " << path << '\n';
+        return false;
+    }
+
+    clue = text;
+    return true;
+}
+
+bool RunePuzzle::isNear(
+    const SDL_FRect& player, const SDL_FRect& object) const
+{
+    const float dx =
+        (player.x + player.w / 2.0f) - (object.x + object.w / 2.0f);
+
+    const float dy =
+        (player.y + player.h / 2.0f) - (object.y + object.h / 2.0f);
+
+    return dx * dx + dy * dy <= 48.0f * 48.0f;
+}
+
+void RunePuzzle::interact(
+    const SDL_FRect& player, SDL_Window* window)
+{
+    if (isNear(player, note))
+    {
+        if (!SDL_ShowSimpleMessageBox(
+            SDL_MESSAGEBOX_INFORMATION,
+            "Dungeon note", clue.c_str(), window))
+        {
+            std::cerr << "Could not display note: "
+                << SDL_GetError() << '\n';
+        }
+    }
+}
 
 void RunePuzzle::render(SDL_Renderer* renderer) const
 {
@@ -89,4 +133,17 @@ void RunePuzzle::render(SDL_Renderer* renderer) const
     };
 
     SDL_RenderLines(renderer, moon, 12);
+
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+    SDL_RenderRect(renderer, &note);
+
+    SDL_RenderLine(
+        renderer, note.x + 5.0f, note.y + 10.0f,
+        note.x + 19.0f, note.y + 10.0f);
+
+    SDL_RenderLine(
+        renderer, note.x + 5.0f, note.y + 18.0f,
+        note.x + 19.0f, note.y + 18.0f);
+
 }
