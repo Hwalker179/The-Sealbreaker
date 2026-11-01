@@ -32,6 +32,7 @@ bool RunePuzzle::isNear(
 void RunePuzzle::interact(
     const SDL_FRect& player, SDL_Window* window)
 {
+    // The note can still be read after solving the puzzle
     if (isNear(player, note))
     {
         if (!SDL_ShowSimpleMessageBox(
@@ -40,6 +41,36 @@ void RunePuzzle::interact(
         {
             std::cerr << "Could not display note: "
                 << SDL_GetError() << '\n';
+        }
+
+        return;
+    }
+
+    if (solved)
+    {
+        return;
+    }
+
+    for (int i = 0; i < 4; ++i)
+    {
+        if (isNear(player, runeBounds(i)))
+        {
+            if (i == solution[progress])
+            {
+                ++progress;
+
+                if (progress == static_cast<int>(solution.size()))
+                {
+                    solved = true;
+                }
+            }
+            else
+            {
+                // A wrong choice clears the entire sequence
+                progress = 0;
+            }
+
+            return;
         }
     }
 }
@@ -58,7 +89,7 @@ void RunePuzzle::render(SDL_Renderer* renderer) const
 
     SDL_RenderLines(renderer, mountain, 4);
 
-    // Snow cap.
+    // Snow cap
     const SDL_FPoint snow[] = {
         {158.0f, 150.0f},
         {166.0f, 154.0f},
@@ -146,4 +177,48 @@ void RunePuzzle::render(SDL_Renderer* renderer) const
         renderer, note.x + 5.0f, note.y + 18.0f,
         note.x + 19.0f, note.y + 18.0f);
 
+    // Four indicators above the centre of the room
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+    for (int i = 0; i < 4; ++i)
+    {
+        const SDL_FRect indicator{
+            276.0f + i * 24.0f,
+            70.0f,
+            16.0f,
+            16.0f
+        };
+
+        if (i < progress)
+        {
+            SDL_RenderFillRect(renderer, &indicator);
+        }
+        else
+        {
+            SDL_RenderRect(renderer, &indicator);
+        }
+    }
+
+}
+
+// Interaction areas
+SDL_FRect RunePuzzle::runeBounds(int index) const
+{
+    switch (index)
+    {
+    case 0: // Mountain
+        return { 140.0f, 130.0f, 60.0f, 50.0f };
+
+    case 1: // River
+        return { 434.0f, 130.0f, 44.0f, 50.0f };
+
+    case 2: // Flame
+        return { 146.0f, 290.0f, 48.0f, 58.0f };
+
+    case 3: // Moon
+        return { 434.0f, 290.0f, 44.0f, 58.0f };
+
+    default:
+        return {};
+    }
 }

@@ -173,6 +173,7 @@ int main(int argc, char* argv[]) {
             if (currentRoom < roomCount - 1 &&
                 (currentRoom != 0 || firstPuzzle.isSolved()) &&
                 (currentRoom != 1 || secondPuzzle.isSolved()) &&
+                (currentRoom != 2 || thirdPuzzle.isSolved()) &&
                 position.x + position.w >= room.x + room.w - 1.0f)
             {
                 ++currentRoom;
@@ -267,6 +268,14 @@ int main(int argc, char* argv[]) {
         if (currentRoom == 2)
         {
             thirdPuzzle.render(renderer);
+
+            if (!thirdPuzzle.isSolved())
+            {
+                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+                SDL_RenderLine(
+                    renderer, right, openingTop, right, openingBottom);
+            }
         }
 
         player.render(renderer);
