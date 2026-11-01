@@ -160,12 +160,14 @@ copy /Y "$(ProjectDir)external\SDL3_image\lib\x64\*.dll" "$(TargetDir)"</Command
     <ClCompile Include="BoxPuzzle.cpp" />
     <ClCompile Include="LightPuzzle.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="RunePuzzle.cpp" />
     <ClCompile Include="TheSpellbreaker.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BoxPuzzle.h" />
     <ClInclude Include="LightPuzzle.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="RunePuzzle.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

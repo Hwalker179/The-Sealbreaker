@@ -5,6 +5,7 @@
 #include <string>
 #include "LightPuzzle.h"
 #include "BoxPuzzle.h"
+#include "RunePuzzle.h"
 
 int main(int argc, char* argv[]) {
     if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -44,6 +45,8 @@ int main(int argc, char* argv[]) {
     firstPuzzle.loadClue("assets/room1_note.txt");
 
     BoxPuzzle secondPuzzle;
+
+    RunePuzzle thirdPuzzle;
 
     Uint64 previousTime = SDL_GetTicks();
 
@@ -254,6 +257,11 @@ int main(int argc, char* argv[]) {
                 SDL_RenderLine(
                     renderer, right, openingTop, right, openingBottom);
             }
+        }
+
+        if (currentRoom == 2)
+        {
+            thirdPuzzle.render(renderer);
         }
 
         player.render(renderer);
