@@ -3,9 +3,24 @@
 #include <SDL3/SDL_main.h>
 #include "Player.h"
 #include <string>
+#include <cstring>
 #include "LightPuzzle.h"
 #include "BoxPuzzle.h"
 #include "RunePuzzle.h"
+
+void drawCenteredText(
+    SDL_Renderer* renderer, float y, const char* text)
+{
+    constexpr float windowWidth = 640.0f;
+    constexpr float characterWidth = 8.0f;
+
+    const float textWidth =
+        static_cast<float>(std::strlen(text)) * characterWidth;
+
+    const float x = (windowWidth - textWidth) / 2.0f;
+
+    SDL_RenderDebugText(renderer, x, y, text);
+}
 
 int main(int argc, char* argv[]) {
     if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -133,6 +148,12 @@ int main(int argc, char* argv[]) {
             }
 
             else if (event.type == SDL_EVENT_KEY_DOWN &&
+                event.key.key == SDLK_ESCAPE)
+            {
+                running = false;
+            }
+
+            else if (event.type == SDL_EVENT_KEY_DOWN &&
                      event.key.scancode == SDL_SCANCODE_E &&
                      !event.key.repeat)
             {   
@@ -179,8 +200,7 @@ int main(int argc, char* argv[]) {
 
             if (screen == Screen::Menu)
             {
-                SDL_RenderDebugText(
-                    renderer, 260.0f, 130.0f, "THE SEALBREAKER");
+                drawCenteredText(renderer, 130.0f, "THE SEALBREAKER");
 
                 const char* options[] = {
                     "Start Game",
@@ -192,23 +212,27 @@ int main(int argc, char* argv[]) {
                 {
                     const float y = 210.0f + i * 40.0f;
 
-                    SDL_RenderDebugText(
-                        renderer, 280.0f, y, options[i]);
+                    drawCenteredText(renderer, y, options[i]);
 
                     if (i == selectedOption)
                     {
-                        SDL_RenderDebugText(renderer, 256.0f, y, ">");
+                        const float textWidth =
+                            static_cast<float>(std::strlen(options[i])) * 8.0f;
+
+                        const float textLeft = (640.0f - textWidth) / 2.0f;
+
+                        SDL_RenderDebugText(
+                            renderer, textLeft - 24.0f, y, ">");
                     }
                 }
 
-                SDL_RenderDebugText(
-                    renderer, 180.0f, 380.0f,
+                drawCenteredText(
+                    renderer, 380.0f,
                     "Up/Down to select - Enter to confirm");
             }
             else
             {
-                SDL_RenderDebugText(
-                    renderer, 272.0f, 100.0f, "INSTRUCTIONS");
+                drawCenteredText(renderer, 100.0f, "INSTRUCTIONS");
 
                 const char* instructions[] = {
                     "WASD - Move",
@@ -221,15 +245,14 @@ int main(int argc, char* argv[]) {
 
                 for (int i = 0; i < 6; ++i)
                 {
-                    SDL_RenderDebugText(
+                    drawCenteredText(
                         renderer,
-                        100.0f,
                         160.0f + i * 32.0f,
                         instructions[i]);
                 }
 
-                SDL_RenderDebugText(
-                    renderer, 160.0f, 400.0f,
+                drawCenteredText(
+                    renderer, 400.0f,
                     "Press Enter or Escape to return");
             }
 
