@@ -52,6 +52,11 @@ int main(int argc, char* argv[]) {
 
     Uint64 previousTime = SDL_GetTicks();
 
+    // Victory pedestal
+    const SDL_FRect pedestal{ 288.0f, 208.0f, 64.0f, 64.0f };
+
+    bool gameCompleted = false;
+
     bool running = true;
 
     while (running)
@@ -278,10 +283,57 @@ int main(int argc, char* argv[]) {
             }
         }
 
+        if (currentRoom == 3)
+        {
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+            // Outer edge of the pedestal
+            SDL_RenderRect(renderer, &pedestal);
+
+            // Inner edge 
+            const SDL_FRect inner{
+                pedestal.x + 6.0f,
+                pedestal.y + 6.0f,
+                pedestal.w - 12.0f,
+                pedestal.h - 12.0f
+            };
+
+            SDL_RenderRect(renderer, &inner);
+        }
+
         player.render(renderer);
 
         // Display the completed frame
         SDL_RenderPresent(renderer);
+
+        if (currentRoom == 3 && !gameCompleted)
+        {
+            const SDL_FRect playerBounds = player.getBounds();
+
+            const bool onPedestal =
+                playerBounds.x >= pedestal.x &&
+                playerBounds.y >= pedestal.y &&
+                playerBounds.x + playerBounds.w <= pedestal.x + pedestal.w &&
+                playerBounds.y + playerBounds.h <= pedestal.y + pedestal.h;
+
+            if (onPedestal)
+            {
+                gameCompleted = true;
+
+                if (!SDL_ShowSimpleMessageBox(
+                    SDL_MESSAGEBOX_INFORMATION,
+                    "The final seal is broken.",
+                    "Congratulations! You have completed The Sealbreaker.\n\n"
+                    "Take your treasure and go home!",
+                    window))
+                {
+                    std::cerr << "Could not display completion message: "
+                        << SDL_GetError() << '\n';
+                }
+
+                running = false;
+            }
+        }
 
         // Simple delay to avoid running the loop unnecessarily fas
         SDL_Delay(16);
