@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    SDL_Window* window = SDL_CreateWindow("The Sealbreaker - Room 1/4", 640, 480, 0);
+    SDL_Window* window = SDL_CreateWindow("The Sealbreaker", 640, 480, 0);
     if (!window) {
         std::cerr << "SDL_CreateWindow failed: " << SDL_GetError() << std::endl;
         SDL_Quit();
@@ -27,6 +27,16 @@ int main(int argc, char* argv[]) {
         SDL_Quit();
         return 1;
     }
+
+    enum class Screen
+    {
+        Menu,
+        Instructions,
+        Playing
+    };
+
+    Screen screen = Screen::Menu;
+    int selectedOption = 0;
 
     // Room boundary: x, y, width, height
     const SDL_FRect room{ 40.0f, 40.0f, 560.0f, 400.0f };
@@ -71,6 +81,57 @@ int main(int argc, char* argv[]) {
                 running = false;
             }
 
+            else if (screen != Screen::Playing)
+            {
+                if (event.type == SDL_EVENT_KEY_DOWN && !event.key.repeat)
+                {
+                    if (screen == Screen::Menu)
+                    {
+                        switch (event.key.key)
+                        {
+                        case SDLK_UP:
+                            selectedOption = (selectedOption + 2) % 3;
+                            break;
+
+                        case SDLK_DOWN:
+                            selectedOption = (selectedOption + 1) % 3;
+                            break;
+
+                        case SDLK_RETURN:
+                            if (selectedOption == 0)
+                            {
+                                screen = Screen::Playing;
+                                previousTime = SDL_GetTicks();
+
+                                SDL_SetWindowTitle(
+                                    window, "The Sealbreaker - Room 1/4");
+                            }
+                            else if (selectedOption == 1)
+                            {
+                                screen = Screen::Instructions;
+                            }
+                            else
+                            {
+                                running = false;
+                            }
+                            break;
+
+                        case SDLK_ESCAPE:
+                            running = false;
+                            break;
+                        }
+                    }
+                    else if (screen == Screen::Instructions)
+                    {
+                        if (event.key.key == SDLK_ESCAPE ||
+                            event.key.key == SDLK_RETURN)
+                        {
+                            screen = Screen::Menu;
+                        }
+                    }
+                }
+            }
+
             else if (event.type == SDL_EVENT_KEY_DOWN &&
                      event.key.scancode == SDL_SCANCODE_E &&
                      !event.key.repeat)
@@ -107,6 +168,77 @@ int main(int argc, char* argv[]) {
         if (!running)
         {
             break;
+        }
+
+        if (screen != Screen::Playing)
+        {
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+            SDL_RenderClear(renderer);
+
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+            if (screen == Screen::Menu)
+            {
+                SDL_RenderDebugText(
+                    renderer, 260.0f, 130.0f, "THE SEALBREAKER");
+
+                const char* options[] = {
+                    "Start Game",
+                    "Instructions",
+                    "Exit"
+                };
+
+                for (int i = 0; i < 3; ++i)
+                {
+                    const float y = 210.0f + i * 40.0f;
+
+                    SDL_RenderDebugText(
+                        renderer, 280.0f, y, options[i]);
+
+                    if (i == selectedOption)
+                    {
+                        SDL_RenderDebugText(renderer, 256.0f, y, ">");
+                    }
+                }
+
+                SDL_RenderDebugText(
+                    renderer, 180.0f, 380.0f,
+                    "Up/Down to select - Enter to confirm");
+            }
+            else
+            {
+                SDL_RenderDebugText(
+                    renderer, 272.0f, 100.0f, "INSTRUCTIONS");
+
+                const char* instructions[] = {
+                    "WASD - Move",
+                    "E - Read notes and activate nearby symbols",
+                    "Walk into boxes to push them",
+                    "R - Reset the unfinished box puzzle",
+                    "Solve all three puzzles to reach the treasure",
+                    "Stand fully on the final pedestal to finish"
+                };
+
+                for (int i = 0; i < 6; ++i)
+                {
+                    SDL_RenderDebugText(
+                        renderer,
+                        100.0f,
+                        160.0f + i * 32.0f,
+                        instructions[i]);
+                }
+
+                SDL_RenderDebugText(
+                    renderer, 160.0f, 400.0f,
+                    "Press Enter or Escape to return");
+            }
+
+            SDL_RenderPresent(renderer);
+            SDL_Delay(16);
+
+            // Skip gameplay while a menu screen is displayed
+            previousTime = SDL_GetTicks();
+            continue;
         }
 
         // Calculate elapsed time in seconds
