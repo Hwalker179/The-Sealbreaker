@@ -46,15 +46,10 @@ bool BoxPuzzle::isNear(
 void BoxPuzzle::interact(
     const SDL_FRect& player, SDL_Window* window)
 {
+    // New note handling
     if (isNear(player, note))
     {
-        if (!SDL_ShowSimpleMessageBox(
-            SDL_MESSAGEBOX_INFORMATION,
-            "Dungeon note", clue.c_str(), window))
-        {
-            std::cerr << "Could not display note: "
-                << SDL_GetError() << '\n';
-        }
+        return;
     }
 }
 

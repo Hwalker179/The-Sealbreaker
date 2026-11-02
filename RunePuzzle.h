@@ -12,6 +12,16 @@ public:
     void interact(const SDL_FRect& player, SDL_Window* window);
     bool isSolved() const { return solved; }
 
+    const std::string& getClue() const
+    {
+        return clue;
+    }
+
+    bool isNearNote(const SDL_FRect& player) const
+    {
+        return isNear(player, note);
+    }
+
 private:
     SDL_FRect note{ 308.0f, 224.0f, 24.0f, 32.0f };
     std::string clue = "The note could not be loaded.";

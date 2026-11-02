@@ -14,6 +14,17 @@ public:
     bool loadClue(const std::string& path);
     void interact(const SDL_FRect& player, SDL_Window* window);
     bool isSolved() const { return solved; }
+
+    const std::string& getClue() const
+    {
+        return clue;
+    }
+
+    bool isNearNote(const SDL_FRect& player) const
+    {
+        return isNear(player, note);
+    }
+
 private:
     struct Cell
     {

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include "Player.h"
@@ -47,11 +48,13 @@ int main(int argc, char* argv[]) {
     {
         Menu,
         Instructions,
+        Note,
         Playing
     };
 
     Screen screen = Screen::Menu;
     int selectedOption = 0;
+    std::string activeNote;
 
     // Room boundary: x, y, width, height
     const SDL_FRect room{ 40.0f, 40.0f, 560.0f, 400.0f };
@@ -136,12 +139,17 @@ int main(int argc, char* argv[]) {
                             break;
                         }
                     }
-                    else if (screen == Screen::Instructions)
+                    else if (screen == Screen::Instructions ||
+                        screen == Screen::Note)
                     {
                         if (event.key.key == SDLK_ESCAPE ||
                             event.key.key == SDLK_RETURN)
                         {
-                            screen = Screen::Menu;
+                            screen = (screen == Screen::Note)
+                                ? Screen::Playing
+                                : Screen::Menu;
+
+                            previousTime = SDL_GetTicks();
                         }
                     }
                 }
@@ -154,23 +162,45 @@ int main(int argc, char* argv[]) {
             }
 
             else if (event.type == SDL_EVENT_KEY_DOWN &&
-                     event.key.scancode == SDL_SCANCODE_E &&
-                     !event.key.repeat)
-            {   
-                 if (currentRoom == 0)
-                 {
-                    firstPuzzle.interact(player.getBounds(), window);
-                 }
-                 else if (currentRoom == 1)
-                 {
-                    secondPuzzle.interact(player.getBounds(), window);
-                 }
-                 else if (currentRoom == 2)
-                 {
-                    thirdPuzzle.interact(player.getBounds(), window);
-                 }
+                event.key.scancode == SDL_SCANCODE_E &&
+                !event.key.repeat)
+            {
+                const SDL_FRect position = player.getBounds();
 
-                 previousTime = SDL_GetTicks();
+                if (currentRoom == 0)
+                {
+                    if (firstPuzzle.isNearNote(position))
+                    {
+                        activeNote = firstPuzzle.getClue();
+                        screen = Screen::Note;
+                    }
+                    else
+                    {
+                        firstPuzzle.interact(position, window);
+                    }
+                }
+                else if (currentRoom == 1)
+                {
+                    if (secondPuzzle.isNearNote(position))
+                    {
+                        activeNote = secondPuzzle.getClue();
+                        screen = Screen::Note;
+                    }
+                }
+                else if (currentRoom == 2)
+                {
+                    if (thirdPuzzle.isNearNote(position))
+                    {
+                        activeNote = thirdPuzzle.getClue();
+                        screen = Screen::Note;
+                    }
+                    else
+                    {
+                        thirdPuzzle.interact(position, window);
+                    }
+                }
+
+                previousTime = SDL_GetTicks();
             }
             
             else if (event.type == SDL_EVENT_KEY_DOWN &&
@@ -230,7 +260,7 @@ int main(int argc, char* argv[]) {
                     renderer, 380.0f,
                     "Up/Down to select - Enter to confirm");
             }
-            else
+            else if (screen == Screen::Instructions)
             {
                 drawCenteredText(renderer, 100.0f, "INSTRUCTIONS");
 
@@ -253,6 +283,30 @@ int main(int argc, char* argv[]) {
 
                 drawCenteredText(
                     renderer, 400.0f,
+                    "Press Enter or Escape to return");
+            }
+
+            else if (screen == Screen::Note)
+            {
+                drawCenteredText(renderer, 80.0f, "DUNGEON NOTE");
+
+                std::istringstream lines(activeNote);
+                std::string line;
+                float y = 140.0f;
+
+                while (std::getline(lines, line))
+                {
+                    if (!line.empty() && line.back() == '\r')
+                    {
+                        line.pop_back();
+                    }
+
+                    drawCenteredText(renderer, y, line.c_str());
+                    y += 24.0f;
+                }
+
+                drawCenteredText(
+                    renderer, 420.0f,
                     "Press Enter or Escape to return");
             }
 
