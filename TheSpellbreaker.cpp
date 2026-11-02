@@ -23,6 +23,75 @@ void drawCenteredText(
     SDL_RenderDebugText(renderer, x, y, text);
 }
 
+void drawCoinPile(SDL_Renderer* renderer, float x, float y)
+{
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+    // Three stacks of small flat coins
+    for (int stack = 0; stack < 3; ++stack)
+    {
+        const int coinCount = (stack == 1) ? 4 : 2;
+
+        for (int coin = 0; coin < coinCount; ++coin)
+        {
+            const SDL_FRect bounds{
+                x + stack * 12.0f,
+                y - coin * 5.0f,
+                10.0f,
+                4.0f
+            };
+
+            SDL_RenderRect(renderer, &bounds);
+        }
+    }
+}
+
+void drawTreasureChest(SDL_Renderer* renderer, float x, float y)
+{
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+    // Chest body
+    const SDL_FRect body{ x, y + 20.0f, 64.0f, 32.0f };
+    SDL_RenderRect(renderer, &body);
+
+    // Raised lid
+    const SDL_FPoint lid[] = {
+        {x,         y + 14.0f},
+        {x + 6.0f,  y},
+        {x + 58.0f, y},
+        {x + 64.0f, y + 14.0f},
+        {x,         y + 14.0f}
+    };
+
+    SDL_RenderLines(renderer, lid, 5);
+
+    // Metal bands on the body
+    SDL_RenderLine(
+        renderer, x + 12.0f, y + 20.0f,
+        x + 12.0f, y + 52.0f);
+
+    SDL_RenderLine(
+        renderer, x + 52.0f, y + 20.0f,
+        x + 52.0f, y + 52.0f);
+
+    // Clasp
+    const SDL_FRect clasp{ x + 28.0f, y + 20.0f, 8.0f, 10.0f };
+    SDL_RenderFillRect(renderer, &clasp);
+
+    // Treasure visible inside the open chest
+    for (int i = 0; i < 5; ++i)
+    {
+        const SDL_FRect coin{
+            x + 5.0f + i * 11.0f,
+            y + 16.0f,
+            9.0f,
+            3.0f
+        };
+
+        SDL_RenderFillRect(renderer, &coin);
+    }
+}
+
 int main(int argc, char* argv[]) {
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         std::cerr << "SDL_Init failed: " << SDL_GetError() << std::endl;
@@ -494,6 +563,30 @@ int main(int argc, char* argv[]) {
 
         if (currentRoom == 3)
         {
+
+            drawTreasureChest(renderer, 288.0f, 130.0f);
+
+            drawCoinPile(renderer, 150.0f, 150.0f);
+            drawCoinPile(renderer, 450.0f, 150.0f);
+            drawCoinPile(renderer, 125.0f, 350.0f);
+            drawCoinPile(renderer, 450.0f, 350.0f);
+            drawCoinPile(renderer, 400.0f, 300.0f);
+            drawCoinPile(renderer, 500.0f, 400.0f);
+            drawCoinPile(renderer, 100.0f, 200.0f);
+            drawCoinPile(renderer, 200.0f, 200.0f);
+            drawCoinPile(renderer, 300.0f, 100.0f);
+            drawCoinPile(renderer, 400.0f, 100.0f);
+            drawCoinPile(renderer, 400.0f, 200.0f);
+            drawCoinPile(renderer, 150.0f, 400.0f);
+            drawCoinPile(renderer, 300.0f, 400.0f);
+            drawCoinPile(renderer, 250.0f, 380.0f);
+            drawCoinPile(renderer, 350.0f, 350.0f);
+            drawCoinPile(renderer, 475.0f, 250.0f);
+            drawCoinPile(renderer, 525.0f, 200.0f);
+            drawCoinPile(renderer, 510.0f, 300.0f);
+            drawCoinPile(renderer, 50.0f, 75.0f);
+            drawCoinPile(renderer, 175.0f, 90.0f);
+
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
             // Outer edge of the pedestal
